@@ -1,0 +1,101 @@
+<apex:page controller="DynamicTableMapping">
+<apex:outputPanel id="MappingTable">
+<apex:form >
+  <apex:pageBlock title="Dynamic Table Mapping">
+      <apex:outputPanel >
+      <apex:pageblockSection columns="2">
+          <apex:inputText value="{!tableMapping.DbFieldName__c}" label="Db Field Name"/> 
+          <apex:inputText value="{!tableMapping.DbTableName__c}" label="Db Table Name"/> 
+          <apex:inputText value="{!tableMapping.DbLookupName__c}" label="Db Lookup Name"/> 
+          <apex:selectList label="Sf Table Name" size="1" value="{!tableMapping.SfTableName__c}">
+              <apex:selectOptions value="{!SfTableNameList}"></apex:selectOptions>
+              <apex:ActionSupport event="onchange" reRender="sfFieldName"/>
+          </apex:selectList>   
+          <apex:selectList label="Sf Field Name" size="1" value="{!tableMapping.SfFieldName__c}" id="sfFieldName">
+              <apex:selectOptions value="{!SfFieldNamesList}"></apex:selectOptions>
+          </apex:selectList>  
+          <apex:selectList label="Sf Lookup Name" size="1" value="{!tableMapping.SfLookupName__c}">
+              <apex:selectOptions value="{!SfTableNameList}"></apex:selectOptions>
+          </apex:selectList>  
+      </apex:pageblockSection>
+      </apex:outputPanel>
+      <apex:pageBlockButtons >
+          <apex:commandButton title="save" value="Save" id="save" status="AjaxStatus" action="{!saveMapping}" reRender="MappingTable"/>
+          <apex:commandButton title="cancel" value="Cancel"/>
+          <apex:actionStatus id="AjaxStatus" onstart="DisableButton()" onstop="EnableButton()" ></apex:actionStatus>
+      </apex:pageBlockButtons>
+  </apex:pageBlock>
+  
+  </apex:form>
+  <apex:pageblock title="Dynamic Mapping">
+      <apex:pageBlockTable columns="6" value="{!mappingList}" var="map" rendered="true">
+          <apex:column value="{!map.DbFieldName__c}"/>
+          <apex:column value="{!map.DbLookupName__c}"/>
+          <apex:column value="{!map.DbTableName__c}"/>
+          <apex:column value="{!map.SfFieldName__c}"/>
+          <apex:column value="{!map.SfLookupName__c}"/>
+          <apex:column value="{!map.SfTableName__c}"/>
+      </apex:pageBlockTable>
+  </apex:pageblock>
+  <apex:form >
+  <apex:pageblock title="Test Json">
+    <apex:pageBlockButtons >
+        <apex:commandButton title="Generate" value="Generate" onclick="this.value = 'please wait....';" oncomplete="enable();this.value = 'Generate';" action="{!generateJSON}" reRender="testJson">
+        </apex:commandButton>
+        <apex:commandButton title="cancel" value="Cancel"/>
+    </apex:pageBlockButtons>
+    <apex:outputPanel id="testJson" rendered="true">
+    <apex:pageblockSection columns="2">
+        <apex:selectList label="Db Table Name" size="1" value="{!dbTableMapping.DbTableName__c}">
+            <apex:selectOptions value="{!DbTableNameList}"></apex:selectOptions>
+            <apex:ActionSupport event="onchange" reRender="dbFieldName"/>
+        </apex:selectList>
+        <apex:selectList label="Unique Field Name" size="1" value="{!dbTableMapping.DbFieldName__c}" id="dbFieldName">
+              <apex:selectOptions value="{!DbFieldNamesList}"></apex:selectOptions>
+        </apex:selectList>
+        <!-- <apex:inputTextarea value="{!jsonData}" label="Test JSON"/> -->
+        <tr>
+            <td colspan = "4">
+            <div style = "margin-left : 40%;margin-right : 40%;margin-bottom : 2%;">
+            <b><pre>{!jsonData}</pre></b>
+            <input type="button" id="dwn-btn" class="btn" disabled ="true" onClick ="getFileJson()" value="Download Full JSON File"/>
+            </div>
+            <input type="hidden" id="text-val" value="{!jsonData}"/>
+            <script>
+            function enable(){
+                document.getElementById("dwn-btn").disabled = false;
+            }
+            function download(filename, text) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            }
+
+            // Start file download.
+            function getFileJson(){
+                // Generate download of hello.txt file with some content
+                var text = document.getElementById("text-val").value;
+                var filename = "{!dbTableMapping.DbTableName__c}.json";
+                
+                download(filename, text);
+            }; 
+            </script>
+            </td>
+        </tr>
+        
+        
+    </apex:pageblockSection>
+    </apex:outputPanel>
+    
+  </apex:pageblock>
+  </apex:form >
+  </apex:outputPanel>
+    
+</apex:page>
